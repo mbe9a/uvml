@@ -1,4 +1,5 @@
 from template_instrument import LANINST
+import numpy as np
 
 class Keithley(LANINST):
 
@@ -50,3 +51,11 @@ class Keithley(LANINST):
 			print self.ask("read?")
 		else:
 			return "Not permitted with output off."
+
+class Lakeshore(LANINST):
+
+	def __init__(self, addr, **kwargs):
+		LANINST.__init__(self, addr, **kwargs)
+
+	def measure(self, sensor):
+		return np.float(self.ask("KRDG? " + str(sensor)))
