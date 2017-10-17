@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='uvml',
-      version='0.21',
+      version='0.22',
       description='UVML Lab Code',
       url='https://github.com/mbe9a/uvml',
       author='Michael Eller',
