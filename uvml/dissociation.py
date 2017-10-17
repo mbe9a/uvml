@@ -11,7 +11,7 @@ import csv
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from shutil import copyfile
 
-plt.style.use('bmh')
+#plt.style.use('bmh')
 
 
 # helper function to print polynomial fit
