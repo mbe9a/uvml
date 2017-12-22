@@ -10,7 +10,10 @@ class Keithley(LANINST):
 	@on.setter
 	def on(self, value):
 		self._on = bool(value)
-		self.output()
+		if self._on:
+            self.write(":outp:stat 1")
+        else:
+            self.write(":outp:stat 0")
 
 	def __init__(self, addr, **kwargs):
 		LANINST.__init__(self, addr, **kwargs)
@@ -32,12 +35,6 @@ class Keithley(LANINST):
 	def set_amplitude(self, mode, amp):
 		self.write(":SOUR:" + mode + ":lev:imm:ampl " + str(amp))
 
-	def output(self):
-		if self._on:
-			self.write(":outp:stat 1")
-		else:
-			self.write(":outp:stat 0")
-
 	def measure_function(self, voltage=False, current=False):
 		if voltage and current:
 			self.write(":SENS:FUNC  'VOLT', 'CURR'")
@@ -46,9 +43,12 @@ class Keithley(LANINST):
 		elif current:
 			self.write(":SENS:FUNC  'CURR'")
 	
-	def measure(self):
+	def measure(self, power=False):
 		if self.on:
-			print self.ask("read?")
+            if power:
+                s = self.ask("read?")
+                return float(s[0:13])*float(s[14:27])
+			return self.ask("read?")
 		else:
 			return "Not permitted with output off."
 
