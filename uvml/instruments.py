@@ -36,11 +36,23 @@ class Keithley(LANINST):
 	def source_fix(self, mode):
 		self.write(":SOUR:" + mode + ":mode fix")
 
-	def measure_range(self, mode, rng):
+	def source_range(self, mode, rng):
 		self.write(":SOUR:" + mode + ":rang:" + rng + " on")
 
 	def set_amplitude(self, mode, amp):
 		self.write(":SOUR:" + mode + ":lev:imm:ampl " + str(amp))
+
+	def set_channel(self, c):
+		self.write(":SENS:CHAN " + str(c))
+
+	def set_channel_range(self, c, r, auto=True):
+		if auto:
+			self.write(":SENS:VOLT:CHAN" + str(c) + ":rang:auto " + str(r))
+		else:
+			self.write(":SENS:VOLT:CHAN" + str(c) + ":rang: " + str(r))
+
+	def set_power_line_cycles(self, n):
+		self.write(":sens:volt:nplc " + str(n))
 
 	def measure_function(self, voltage=False, current=False):
 		if voltage and current:

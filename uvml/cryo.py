@@ -73,7 +73,7 @@ class TemperatureMonitor(object):
 
 class Measurement(dict):
 	def __init__(self, *arg, **kw):
-		super(DRMeasurement, self).__init__(*arg, **kw)
+		super(Measurement, self).__init__(*arg, **kw)
 		try:
 			self.name = kw['name']
 		except KeyError:
@@ -100,7 +100,7 @@ class DifferentialResistance(object):
 		self.keithley.restore()
 		self.keithley.source_mode("curr")
 		self.keithley.source_fix("curr")
-		self.keithley.measure_range("curr", "auto")
+		self.keithley.source_range("curr", "auto")
 		self.keithley.set_amplitude("curr", 0)
 		self.keithley.on = False
 		self.keithley.measure_function(voltage=True, current=True)
@@ -204,17 +204,48 @@ class DifferentialResistance(object):
 
 class Tc(object):
 
-	def __init__(self, lakeshore, keithley1, keithley2, savedir='Tc Measurements'):
+	def __init__(self, lakeshore, keithley, savedir='Tc Measurements'):
 		self.savedir = savedir
 		if not os.path.isdir(savedir):
 			os.mkdir(savedir)
 		self.lakeshore = lakeshore
-		self.k1 = keithley1
-		self.k2 = keithley2
+		self.k = keithley
 		self.measurements = {}
 		self.date = dt.date.today()
 
 	def measure(self, name, liveplot=True):
+		# self.k.restore()
+		# self.k.measure_function(voltage=True)
+		# self.k.set_channel(1)
+		# self.k.set_channel_range(1, 1)
+		# self.k.set_power_line_cycles(1)
+		#
+		# v = []
+		# temp = []
+		# try:
+		# 	thread.start_new_thread(interrupt, ())
+		# 	self.k.set_channel(1)
+		# 	self.k.on = True
+		# 	while 1:
+		# 		v.append(float(self.k.measure()))
+		# 		temp.append(self.lakeshore.mesure())
+		# 		plt.cla()
+		# 		plt.clf()
+		# 		plt.plot(temp, v)
+		# 		plt.pause(0.01)
+		# except KeyboardInterrupt:
+		# 	pass
+		#
+		# with open(self.savedir + '/' + name + '.csv', 'w') as csvfile:
+		# 	fieldnames = ['V', 'Temp (K)']
+		# 	writer = csv.DictWriter(csvfile, fieldname=fieldnames)
+		# 	writer.writeheader()
+		# 	for x in range(0, len(v)):
+		# 		writer.writerow({'V': v[x], 'Temp (K)': temp[x]})
+		#
+		# fig = plt.figure()
+		# plt.plot(temp, v)
+		# fig.savefig(self.savedir + '/' + name + '.png')
 		raise NotImplementedError
 
 	def save(self, name):
