@@ -11,7 +11,7 @@ import csv
 from statsmodels.nonparametric.smoothers_lowess import lowess
 from shutil import copyfile
 
-#plt.style.use('bmh')
+plt.style.use('bmh')
 
 
 # helper function to print polynomial fit
@@ -95,6 +95,8 @@ class SpectrumDataParameter(object):
         get_range
         calculate_dissociation
 """
+
+
 class SpectrumDataFile(object):
 
     def __init__(self, filepath, data_range=(740, 765), peaks=(740.5, 752.5), spacing=6.5):
@@ -333,6 +335,8 @@ class SpectrumDataFile(object):
         plot_dissociation
         save_dissociation_plot
 """
+
+
 class SpectrumDataSet(dict):
 
     def __init__(self, pathname, *args, **kw):
@@ -463,8 +467,9 @@ class SpectrumDataSet(dict):
 
         plt.tight_layout()
 
-def errorbar(datasets, ax=None, save=False, ind_var='current', region1=740.5, region2=752.5, spacing=6.5,
-                    labeloverride=None, xlim=None, ylim=None, capthick=0, capcolor='black', **kwargs):
+
+def errorbar(datasets, ax=None, ind_var='current', region1=740.5, region2=752.5, spacing=6.5,
+             labeloverride=None, xlim=None, ylim=None, capthick=0, capcolor='black', **kwargs):
 
     # change all the files to the specified param values
     for dataset in datasets:
@@ -519,19 +524,15 @@ def errorbar(datasets, ax=None, save=False, ind_var='current', region1=740.5, re
         ax3.set_ylim(ylim)
     if ind_var == 'current':
         ax3.set_xlabel("Current (A)")
-        points = sorted([(x.current.value, x.dissociation) for x in datasets[0].keys()])
         label = str(datasets[0].keys()[0].power) + " " + str(datasets[0].keys()[0].pressure)
     elif ind_var == 'power':
         ax3.set_xlabel("Power (W)")
-        points = sorted([(x.power.value, x.dissociation) for x in datasets[0].keys()])
         label = str(datasets[0].keys()[0].current) + " " + str(datasets[0].keys()[0].pressure)
     elif ind_var == 'pressure':
         ax3.set_xlabel("Pressure (mTorr)")
-        points = sorted([(x.pressure.value, x.dissociation) for x in datasets[0].keys()])
         label = str(datasets[0].keys()[0].power) + " " + str(datasets[0].keys()[0].current)
     elif ind_var == 'time':
         ax3.set_xlabel("Time (min)")
-        points = sorted([(x.time.value, x.dissociation) for x in datasets[0].keys()])
         label = str(datasets[0].keys()[0].power) + " " + str(datasets[0].keys()[0].current)
     else:
         raise ValueError("Incorrect independent variable name.")
@@ -562,7 +563,3 @@ def errorbar(datasets, ax=None, save=False, ind_var='current', region1=740.5, re
     plt.tight_layout()
 
     return D
-
-if __name__ == "__main__":
-    pass
-

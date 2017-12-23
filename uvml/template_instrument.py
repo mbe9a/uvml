@@ -1,3 +1,9 @@
+"""
+Mike Eller
+UVML
+November 2017
+"""
+
 from vxi11 import Instrument
 
 

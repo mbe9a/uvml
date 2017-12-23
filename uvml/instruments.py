@@ -1,3 +1,9 @@
+"""
+Mike Eller
+UVML
+November 2017
+"""
+
 from template_instrument import LANINST
 import numpy as np
 import csv

@@ -1,10 +1,16 @@
+"""
+Mike Eller
+UVML
+November 2017
+"""
+
 import datetime as dt
 from datetime import datetime
 import time
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-from posixpath import os
+import os
 import cPickle as pickle
 import thread
 
@@ -24,13 +30,11 @@ class TemperatureMonitor(object):
 		if not os.path.isdir(savedir):
 			os.mkdir(savedir)
 		self.lakeshore = lakeshore
-		self.measurements = []
-		self.measurement_num = 0
+		self.measurements = {}
 		self.date = dt.date.today()
 
 	def measure(self, length, interval, name=None, prnt=True):
 		today = self.date
-		self.measurements.append({})
 		if name:
 			today = name
 		with open(self.savedir + "/" + str(today) + "_TM.csv", "w") as csvfile:
@@ -38,32 +42,36 @@ class TemperatureMonitor(object):
 			fieldnames = ['Time', 'Sensor 1 (K)', 'Sensor 2 (K)', 'Sensor 3 (K)', 'Sensor 4 (K)']
 			writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 			writer.writeheader()
-			while(1):
-				t = datetime.now()
-				current = t - start
-				if current.total_seconds() > length:
-					break
-				temp1 = self.lakeshore.measure(1)
-				temp2 = self.lakeshore.measure(2)
-				temp3 = self.lakeshore.measure(3)
-				temp4 = self.lakeshore.measure(4)
-				writer.writerow({'Time': t.time(), 'Sensor 1 (K)': temp1, 'Sensor 2 (K)': temp2, 'Sensor 3 (K)': temp3,
-				                 'Sensor 4 (K)': temp4})
-				self.measurements[self.measurement_num][t.time] = [temp1, temp2, temp3, temp4]
-				if prnt:
-					print "Time: " + str(t.time())
-					print "Sensor 1: " + temp1
-					print "Sensor 2: " + temp2
-					print "Sensor 3: " + temp3
-					print "Sensor 4: " + temp4
-				time.sleep(interval)
-		self.measurement_num += 1
+			try:
+				thread.start_new_thread(interrupt, ())
+				while 1:
+					t = datetime.now()
+					current = t - start
+					if current.total_seconds() > length:
+						break
+					temp1 = self.lakeshore.measure(1)
+					temp2 = self.lakeshore.measure(2)
+					temp3 = self.lakeshore.measure(3)
+					temp4 = self.lakeshore.measure(4)
+					writer.writerow({'Time': t.time(), 'Sensor 1 (K)': temp1, 'Sensor 2 (K)': temp2, 'Sensor 3 (K)': temp3,
+					                 'Sensor 4 (K)': temp4})
+					self.measurements[name] = {'temp1': temp1, 'temp2': temp2, 'temp3': temp3, 'temp4': temp4, 'time': t}
+					if prnt:
+						print "Time: " + str(t.time())
+						print "Sensor 1: " + temp1
+						print "Sensor 2: " + temp2
+						print "Sensor 3: " + temp3
+						print "Sensor 4: " + temp4
+					time.sleep(interval)
+
+			except KeyboardInterrupt:
+				pass
 
 	def save(self, name):
 		pickle.dump(self, open(self.savedir + "/" + name + ".p", "wb"))
 
 
-class DRMeasurement(dict):
+class Measurement(dict):
 	def __init__(self, *arg, **kw):
 		super(DRMeasurement, self).__init__(*arg, **kw)
 		try:
@@ -130,7 +138,7 @@ class DifferentialResistance(object):
 					writer.writerow({'Power (W)': power, 'Sensor 1 (K)': temp1, 'Sensor 2 (K)': temp2,
 					                 'Sensor 3 (K)': temp3, 'Sensor 4 (K)': temp4, 'Time (s)': t})
 
-					m = DRMeasurement({'power': power, 'temp1': temp1, 'temp2': temp2,
+					m = Measurement({'power': power, 'temp1': temp1, 'temp2': temp2,
 					                   'temp3': temp3, 'temp4': temp4, 'time': t})
 					self.measurements[name].append(m)
 
@@ -194,3 +202,20 @@ class DifferentialResistance(object):
 			pickle.dump(self, open(self.savedir + "/" + name + ".p", "wb"))
 
 
+class Tc(object):
+
+	def __init__(self, lakeshore, keithley1, keithley2, savedir='Tc Measurements'):
+		self.savedir = savedir
+		if not os.path.isdir(savedir):
+			os.mkdir(savedir)
+		self.lakeshore = lakeshore
+		self.k1 = keithley1
+		self.k2 = keithley2
+		self.measurements = {}
+		self.date = dt.date.today()
+
+	def measure(self, name, liveplot=True):
+		raise NotImplementedError
+
+	def save(self, name):
+			pickle.dump(self, open(self.savedir + "/" + name + ".p", "wb"))
