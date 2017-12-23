@@ -1,7 +1,13 @@
 from template_instrument import LANINST
 import numpy as np
+import csv
+
 
 class Keithley(LANINST):
+	def __init__(self, addr, **kwargs):
+		LANINST.__init__(self, addr, **kwargs)
+		self._on = False
+		self.id()
 
 	@property
 	def on(self):
@@ -11,14 +17,9 @@ class Keithley(LANINST):
 	def on(self, value):
 		self._on = bool(value)
 		if self._on:
-            self.write(":outp:stat 1")
-        else:
-            self.write(":outp:stat 0")
-
-	def __init__(self, addr, **kwargs):
-		LANINST.__init__(self, addr, **kwargs)
-		self._on = False
-		self.output()
+			self.write(":outp:stat 1")
+		else:
+			self.write(":outp:stat 0")
 
 	def restore(self):
 		self.write("*RST")
@@ -42,15 +43,16 @@ class Keithley(LANINST):
 			self.write(":SENS:FUNC  'VOLT'")
 		elif current:
 			self.write(":SENS:FUNC  'CURR'")
-	
+
 	def measure(self, power=False):
 		if self.on:
-            if power:
-                s = self.ask("read?")
-                return float(s[0:13])*float(s[14:27])
+			if power:
+				s = self.ask("read?")
+				return float(s[0:13])*float(s[14:27])
 			return self.ask("read?")
 		else:
 			return "Not permitted with output off."
+
 
 class Lakeshore(LANINST):
 
